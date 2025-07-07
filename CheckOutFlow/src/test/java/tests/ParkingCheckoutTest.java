@@ -14,13 +14,13 @@ public class ParkingCheckoutTest extends BaseTest {
         ExtentTest logger = extent.createTest("Test - " + email);
         test.set(logger);
 
-        LoginPage loginPage = new LoginPage(driver);
+        LoginPage loginPage = new LoginPage(getDriver());
         loginPage.login(email, password);
 
-        SearchResultsPage searchPage = new SearchResultsPage(driver);
+        SearchResultsPage searchPage = new SearchResultsPage(getDriver());
         searchPage.searchAndSelectParking(searchUrl);
 
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
+        CheckoutPage checkoutPage = new CheckoutPage(getDriver());
         checkoutPage.completeCheckout();
     }
 
