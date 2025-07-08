@@ -6,11 +6,11 @@ import com.aventstack.extentreports.ExtentTest;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.*;
 
 public class BaseTest {
 
-    // Thread-safe WebDriver and ExtentTest
     private static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
     protected static ExtentReports extent;
     protected static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
@@ -23,7 +23,17 @@ public class BaseTest {
     @BeforeMethod
     public void setUp() {
         WebDriverManager.chromedriver().setup();
-        WebDriver localDriver = new ChromeDriver();
+
+        ChromeOptions options = new ChromeOptions();
+
+        // === Required for headless CI environments like GitHub Actions ===
+        options.addArguments("--headless=new");                 // Use new headless mode (recommended for Chrome 109+)
+        options.addArguments("--no-sandbox");                   // Disable sandbox for containerized environments
+        options.addArguments("--disable-dev-shm-usage");        // Avoid /dev/shm crash in low-memory environments
+        options.addArguments("--disable-gpu");                  // Optional: avoid GPU dependency
+        options.addArguments("--remote-allow-origins=*");       // Optional: allow remote origins if needed
+
+        WebDriver localDriver = new ChromeDriver(options);
         localDriver.manage().window().maximize();
         driver.set(localDriver);
     }
@@ -32,7 +42,7 @@ public class BaseTest {
     public void tearDown() {
         if (driver.get() != null) {
             driver.get().quit();
-            driver.remove();  // Remove thread-local reference
+            driver.remove();
         }
     }
 
@@ -41,7 +51,6 @@ public class BaseTest {
         extent.flush();
     }
 
-    // Provide global access to the thread-safe WebDriver instance
     public WebDriver getDriver() {
         return driver.get();
     }
